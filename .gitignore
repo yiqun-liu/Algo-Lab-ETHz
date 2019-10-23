@@ -1,7 +1,10 @@
 # ignore everything
 *
 
-# but
+# but C/CPP source
 !.gitignore
 !.c
 !.cpp
+
+# in root directory or in subdirectories
+!*/
