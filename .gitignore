@@ -1,0 +1,7 @@
+# ignore everything
+*
+
+# but
+!.gitignore
+!.c
+!.cpp
