@@ -1,10 +1,20 @@
 # ignore everything
 *
 
-# but C/CPP source
-!.gitignore
-!.c
-!.cpp
-
-# in root directory or in subdirectories
+# but subdirectories itself,
 !*/
+
+# git-related files,
+!.gitignore
+!.gitattributes
+!.gitkeep
+
+# explanations,
+!*.md
+
+# and C/CPP sources.
+!*.c
+!*.cpp
+
+# No CMAKE generated 
+**/CMakeFiles/*
