@@ -2,6 +2,12 @@
 
 
 
+All uploaded codes has passed online judge.
+
+
+
+TODO: Upload previous codes & notes;
+
 
 
 ## Index
