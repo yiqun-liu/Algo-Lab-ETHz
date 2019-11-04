@@ -21,3 +21,20 @@ Therefore I tried following techniques:
 
 
 Special thanks to YaoBIG. Key parts in my solution are all his idea. However, I am not able to implement all optimizations he suggested, such as: precomputed the "successor" in greedy algorithms, and jump 2^i steps accordingly... 
+
+
+
+## Courier
+
+I came up with the solution when I tried all the possibilities to make it a network flow problem...
+
+Some ideas:
+
+- This is not a counting problem, 0-1 assignment makes no sense
+- There is  a bipartite relationship between zone ticket and assignments. At first glance, two layer structure is most natural
+- Maximum flow is good at doing logical OR, not AND.
+  - At first I got stuck considering the and relationship: we need all related tickets so that we can fulfill an assignment
+  - However, the reverse is an OR relationship: selecting any of related targets require the tickets for this zone to be bought
+  - --> better make assignment the first layer
+
+I just set the capacity according to my experiences and tried... then I got some interpretation of one combination. It is all luck...

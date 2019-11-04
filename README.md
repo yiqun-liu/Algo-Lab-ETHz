@@ -2,7 +2,7 @@
 
 I write code at computer rooms and also on my laptop, so I created this repo mainly to sync my working environment. (At least for now, I have no time to keep the repo 'tidy' and my codes sufficiently readable.)
 
-All public codes has passed online judge.
+All public codes have passed online judge.
 
 
 
@@ -42,7 +42,8 @@ TODO
 ### Problem of the Week (PotW)
 
 1.  TODO
-2. Attack of the Clones (W7 Greedy, intricate details)
+2. Attack of the Clones (Greedy, intricate details)
+3.  Cantonal Courier (Maximum network flow, hard to model it as flow problem)
 
 
 
