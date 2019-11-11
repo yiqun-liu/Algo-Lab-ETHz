@@ -1,3 +1,15 @@
+/*
+
+Name	Result	Points	CPU Time
+1	sample	correct	0	0s
+2	test1	correct	10	0.003s
+3	test2	correct	10	0.004s
+4	test3	correct	20	0.008s
+5	test4	correct	20	0.015s
+6	test5	correct	20	0.168s
+7	test6	correct	20	0.168s
+*/
+
 #include <iostream>
 #include <string>
 
@@ -44,8 +56,34 @@ void testcase()
     std::string msg;
     
     std::cin >> h >> w;
+    
+    std::vector<std::string> front(h), back(h);
+    memset(count, 0, sizeof(count[0]) * N_ALPHABET);
+    memset(occur, 0, sizeof(occur[0][0]) * N_ALPHABET * N_ALPHABET);
 
-    // source, character, alphabet, target
+    std::cin >> msg;
+    for (int i = 0; i < msg.length(); i++)
+        count[msg[i] - 'A']++; // occurrence of each character
+
+    for (int i = 0; i < h; i++)
+        std::cin >> front[i];    
+    for (int i = 0; i < h; i++)
+        std::cin >> back[i];
+    
+    for (int i = 0; i < h; i++)
+        for (int j = 0; j < w; j++)
+        {
+            // group occur[i][j] and occur[j][i] together to get better condensation
+            int frontIdx =  front[i][j] - 'A', backIdx = back[i][w - 1 - j] - 'A';
+            if (frontIdx <= backIdx )
+                occur[frontIdx][backIdx]++;
+            else
+                occur[backIdx][frontIdx]++;
+        }
+            
+
+    // source, combination, character, target
+    // To make coding easier, I kept some unused nodes in the network
     int source = 0;
     int target = 1 + N_ALPHABET * N_ALPHABET + N_ALPHABET;
     int base_news = 1;
@@ -53,26 +91,6 @@ void testcase()
 
     graph G(1 + N_ALPHABET * N_ALPHABET + N_ALPHABET + 1);
     edge_adder adder(G);
-    
-    memset(count, 0, sizeof(count[0]) * N_ALPHABET);
-    memset(occur, 0, sizeof(occur[0][0]) * N_ALPHABET * N_ALPHABET);
-
-    std::cin >> msg;
-    for (int i = 0; i < msg.length(); i++)
-        count[msg[i] - 'A']++;
-    
-    std::vector<std::string> front(h);
-    std::vector<std::string> back(h);
-
-    for (int i = 0; i < h; i++)
-        std::cin >> front[i];
-        
-    for (int i = 0; i < h; i++)
-        std::cin >> back[i];
-    
-    for (int i = 0; i < h; i++)
-        for (int j = 0; j < w; j++)
-            occur[ front[i][j] - 'A' ][ back[i][w - 1 - j] - 'A' ]++;
 
     for (int i = 0; i < N_ALPHABET; i++)
     {
@@ -80,15 +98,15 @@ void testcase()
         {
             if (occur[i][j])
             {
-                int idx = base_news + i * N_ALPHABET + j;
-                adder.add_edge(source, idx, occur[i][j]);
-                adder.add_edge(idx, base_char + i, occur[i][j]);
+                int idx = base_news + i * N_ALPHABET + j; // node index
+                adder.add_edge(source, idx, occur[i][j]); // source to combination
+                adder.add_edge(idx, base_char + i, occur[i][j]); // combination to char
                 adder.add_edge(idx, base_char + j, occur[i][j]);
             }
         }
     }
 
-    // alphabet to target
+    // char to target
     for (int i = 0; i < N_ALPHABET; i++)
         if (count[i])
             adder.add_edge(base_char + i, target, count[i]);

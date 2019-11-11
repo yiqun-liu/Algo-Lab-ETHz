@@ -37,3 +37,9 @@ Rough evaluation matters. Newspaper may be long, but the space of possible combi
 
 
 Remember to merge the nodes that have same neighbors and keep the graph as sparse as possible.
+
+---
+
+## Courier (PotW)
+
+For some highly structured network (e.g. "bipartite"), the maximum flow is carrying out an implicit comparison. The output is always limited by the bottleneck, in some case the smaller one.
