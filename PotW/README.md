@@ -4,6 +4,8 @@
 
 ## Attack of the Clones
 
+**Greedy Algorithm**
+
 I have been thinking about this problem for days. In the "input" section, Prof. Steger hinted that this problem can be solved using greedy algorithm, as in the classic "job scheduling problem". However, there are much more complicated details we have to deal with (the so called segments are linked in a circular manner, therefore we cannot process it in one-direction way). Also, the input size is very challenging. number of segments can be as large as 1e9, making it infeasible to process segment one by one.
 
 Therefore I tried following techniques:
@@ -26,6 +28,8 @@ Special thanks to YaoBIG. Key parts in my solution are all his idea. However, I 
 
 ## Courier
 
+**Maximum Flow**
+
 I came up with the solution when I tried all the possibilities to make it a network flow problem...
 
 Some ideas:
@@ -38,3 +42,13 @@ Some ideas:
   - --> better make assignment the first layer
 
 I just set the capacity according to my experiences and tried... then I got some interpretation of one combination. It is all luck...
+
+
+
+## Suez
+
+**Linear Programming**
+
+It seems like a collision-detection problems which are really hard to tackle using linear programming. However, this is not a general one: all poster are similar to each other in shapes. The horizontal distance & vertical distance decide to what extent can these new posters "extend" themselves --> boxes collides when **both** distance of horizontal distance and vertical distance reduce below zero. Therefore, the collisions between old posters and new posters and those collisions merely between new ones are essentially the same. The former is a special case. Encoding them in a pairwise style will result in `TL`. Observe carefully and you will soon find out the equations relating to old posters can be merged into `n` inequalities, rather than `n*m`.
+
+The problem is simple. However, I didn't get the full mark because I did a wrong estimation: though `|x|<2^24`, `|x1-x2|` might be greater than `2^24`... and an intermediate expression might be greater than `2^32`, not the `2^31` I expected...
