@@ -3,7 +3,7 @@
 More topics on maximum flow
 
 - Maximum Flow Minimum Cut (MF**MC**)
-- Bipartite Grpah & Maximum Flow:
+- Bipartite Graph & Maximum Flow:
   - Maximum Matchings
   - Maximum Independent Set (MaxIS)
   - Minimum Vertex Cover(MinVC)
@@ -36,5 +36,31 @@ It is by this observation could we solve the problem by running maximum flow for
 
 ## Canteen
 
+A MCMF problem
 
+
+
+It is pretty obvious in many ways.
+
+Information about one edge are grouped when provided.
+
+The are exactly two units which go in parallel, reminding us of cost & capacity.
+
+
+
+However, the intuitive implementation results in `TL` because it introduce negative cost.
+
+
+
+Notice: cost always takes the second priority. Any change in costs does not affect the flow. We can add a constant cost to all negative-cost edges. As the max flow remain unchanged, and there is only one negative-cost edge in the original model, this modification will increase cost in all cases by `max_flow * increased_amount`, with no more side effect.
+
+
+
+## Marathon
+
+(Oh Lord, so much pointless story in the description... >_<)
+
+
+
+Everyone follows the shortest path(s), but the shortest path(s) may not be unique. Therefore we must first figure out all such paths before we calculating the maximum flow...
 

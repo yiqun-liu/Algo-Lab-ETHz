@@ -52,3 +52,13 @@ I just set the capacity according to my experiences and tried... then I got some
 It seems like a collision-detection problems which are really hard to tackle using linear programming. However, this is not a general one: all poster are similar to each other in shapes. The horizontal distance & vertical distance decide to what extent can these new posters "extend" themselves --> boxes collides when **both** distance of horizontal distance and vertical distance reduce below zero. Therefore, the collisions between old posters and new posters and those collisions merely between new ones are essentially the same. The former is a special case. Encoding them in a pairwise style will result in `TL`. Observe carefully and you will soon find out the equations relating to old posters can be merged into `n` inequalities, rather than `n*m`.
 
 The problem is simple. However, I didn't get the full mark because I did a wrong estimation: though `|x|<2^24`, `|x1-x2|` might be greater than `2^24`... and an intermediate expression might be greater than `2^32`, not the `2^31` I expected...
+
+
+
+## Golden Eye
+
+**Delaunay Triangulation**
+
+This problem has some similarity with motion planning introduced in the lecture but is simpler. How to efficiently determine reachability is key to this problem. I solved the first question with disjoint set. This technique is efficient for a given radius, but it doesn't reserve much information, e. g. which edges are used for a given mission. It is a powerful tool to try sth out, but we cannot do inference on it.
+
+Fortunately, the candidate bounds are discrete. `a` and `b` are either bound by the distance between to "jammers" or the distance from `s` or `t` to the nearest jammers. Trying all "jammers distance" in ascending order is unexpectedly easy, because it is incremental modifications.

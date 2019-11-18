@@ -38,12 +38,24 @@ Solving graph problems using CGAL library: **Triangulation**, **Nearest Vertex**
 
 
 
+### Week 9
+
+More topics on maximum flow: **Minimum Cut, {Maximum Matching, Maximum Independent Set, Minimum Vertex Cover} of Bipartite Graph,  Minimum Cost Maximum Flow**
+
+- Satellites (Minimum Vertex Cover)
+- Algocoön Group (Minimum Cut)
+- Canteen (Minimum Cost Maximum Flow)
+- Marathon (Dijkstra & Maximum Flow)
+
+
+
 ### Problem of the Week (PotW)
 
 1.  TODO
 2. Attack of the Clones (Greedy, intricate details)
 3.  Cantonal Courier (Maximum network flow, hard to model it as flow problem)
 4.  Suez (Linear programming)
+5.  Golden Eye (Delaunay triangulation & Union Find)
 
 
 
