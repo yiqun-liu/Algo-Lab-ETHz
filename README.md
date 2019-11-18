@@ -21,13 +21,15 @@ Solving graph problem using BGL library: **Maximum Flows**
 
 ### Week 7
 
+Solving problems using CGAL library: **Linear Programming**
+
 TODO
 
 
 
 ### Week 8
 
-Solving graph problem using CGAL library: **Triangulation**, **Nearest Vertex**, **Motion Planning**
+Solving graph problems using CGAL library: **Triangulation**, **Nearest Vertex**, **Motion Planning**
 
 - Bistro (Voronoi Diagram)
 - Germs (Nearest Adjacent Vertex)
@@ -41,6 +43,7 @@ Solving graph problem using CGAL library: **Triangulation**, **Nearest Vertex**,
 1.  TODO
 2. Attack of the Clones (Greedy, intricate details)
 3.  Cantonal Courier (Maximum network flow, hard to model it as flow problem)
+4.  Suez (Linear programming)
 
 
 

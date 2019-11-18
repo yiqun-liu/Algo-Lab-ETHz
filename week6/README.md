@@ -2,7 +2,7 @@
 
 
 
-Maximum flow problem is essentially a set of inequality constrains. Its algorithms can solve some type of existence problem. 
+Maximum flow problem is essentially a set of inequality constrains. The name suggests that it could model well some optimization problems; besides, it is also a powerful tool for "satisfaction" problem or "existence" problem. (usually, the constrains is satisfied when the max flow is equal to a certain value)
 
 
 
