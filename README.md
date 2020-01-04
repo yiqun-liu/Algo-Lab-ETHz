@@ -8,6 +8,17 @@ All final version codes have passed online judge (If there are several versions 
 
 ## Index
 
+### Week 1
+
+Introduction & precomputing (e. g. partial sum)
+
+- Build The Sum ("helloworld" problem)
+- Dominoes (Remind us always reads all inputs, or inputs to the following testcase will be messed up)
+- Even Pairs (Tutorial problem, precomputing)
+- Even Matrices (Submatrix problem, precomputing)
+
+
+
 ### Week 6
 
 Solving graph problem using BGL library: **Maximum Flows**

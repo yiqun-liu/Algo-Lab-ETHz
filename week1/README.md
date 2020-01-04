@@ -16,7 +16,7 @@ Reminder: when running an online algorithm, take more care when you break a loop
 
 ## Even Pairs
 
-The tutorial problem, detailed discussion provided in the slides
+The **tutorial problem**, detailed discussion provided in the slides
 
 - To iteratively sum elements in a **consecutive** interval, **partial sum** is an important technique to speed up.
 
@@ -29,6 +29,8 @@ My solution: an online algorithm. As we only need to consider consecutive interv
 
 
 ## Even Matrices
+
+**Official solution available on Moodle**
 
 The problem `Even Pairs` is related to this problem: Not only is it the 1d version, but also a subproblem. If we fix the row coordinates of our submatrix, say `r1`, `r2`, then this problem reduces to an `Even Pairs` problem, but now the element `x[c]` in the array is `sum(x[r1:r2, c])`. 
 
