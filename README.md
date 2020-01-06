@@ -10,12 +10,23 @@ All final version codes have passed online judge (If there are several versions 
 
 ### Week 1
 
-Introduction & precomputing (e. g. partial sum)
+Introduction & **precomputing** (e. g. partial sum)
 
-- Build The Sum ("helloworld" problem)
+- Build The Sum ("hello world" problem)
 - Dominoes (Remind us always reads all inputs, or inputs to the following testcase will be messed up)
 - Even Pairs (Tutorial problem, precomputing)
 - Even Matrices (Submatrix problem, precomputing)
+
+
+
+### Week 2
+
+**Dynamic programming** & **sliding window**
+
+- Search Snippets (sliding window)
+- Beach Bars (sliding window)
+- Burning Coins From Two Sides (dynamic programming)
+- The Great Game (dynamic programming)
 
 
 
@@ -62,7 +73,7 @@ More topics on maximum flow: **Minimum Cut, {Maximum Matching, Maximum Independe
 
 ### Problem of the Week (PotW)
 
-1.  TODO
+1.  Deck of Cards (Sliding Window)
 2. Attack of the Clones (Greedy, intricate details)
 3.  Cantonal Courier (Maximum network flow, hard to model it as flow problem)
 4.  Suez (Linear programming)
