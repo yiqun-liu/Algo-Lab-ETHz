@@ -2,6 +2,16 @@
 
 
 
+## Deck of Cards
+
+**Sliding Window**
+
+**Week2's Slides contain sketch of the idea**
+
+Precomputing with partial-sum is not enough to get the full points. Fortunately, all elements are non-negative. We can make use of this monotonous property to efficiently rule out many possibilities. For instance, if `x[0] + x[1] > k`, `x[0] + x[1] + x[2]` should not be considered. Therefore we can keep a sliding whose interval endpoints moves one way to the right, resulting in an `O(N)` time complexity.
+
+
+
 ## Attack of the Clones
 
 **Greedy Algorithm**
