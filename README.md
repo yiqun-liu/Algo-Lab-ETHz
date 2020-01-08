@@ -30,9 +30,31 @@ Introduction & **precomputing** (e. g. partial sum)
 
 
 
+### Week 3
+
+Solving problems with CGAL library: **Basic Computational Geometric Algorithm**
+
+- Hit (Intersection)
+- First Hit (Intersection)
+- Antenna (Minimum Enclosing Circles)
+- Almost Antenna (Minimum Enclosing Circles)
+
+
+
+### Week 4 (In review)
+
+Solving graph problem with BGL library: **Basic Graph Algorithms**
+
+- First Step with BGL
+- Ant Challenge
+- Buddy Selection
+- Shortest Paths
+
+
+
 ### Week 6
 
-Solving graph problem using BGL library: **Maximum Flows**
+Solving graph problem with BGL library: **Maximum Flows**
 
 - Coin Tossing (A variation of "Soccer Prediction" in the Slides)
 - Shopping Trip (Edge Disjoint Paths)
@@ -86,15 +108,15 @@ More topics on maximum flow: **Minimum Cut, {Maximum Matching, Maximum Independe
 Some personal experience
 
 - A non-void function without a return statement works fine on my own PC, but sometimes caused a TL in OJ
-  - always compile with `-Wall` option
+  - if OJ result is not as expected, compile with `-Wall` option
 - C's `qsort` once caused a 'forbidden'. However, C++'s `std::sort` works fine...
 
 
 
 ## TODO
 
-- Upload previous codes & notes
+- PotW - "From Russia With Love" (also TA's idea)
 
 - Rewrite PotW - "Attack of the Clones" using Yu Fei's idea
 - Use binary search to accelerate W7 - radiation
-- Implement TA's idea, "From Russia With Love"; TA's comment on "london" --> README
+- TA's comment on "london" --> README
