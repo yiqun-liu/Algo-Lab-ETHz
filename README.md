@@ -32,7 +32,7 @@ Introduction & **precomputing** (e. g. partial sum)
 
 ### Week 3
 
-Solving problems with CGAL library: **Basic Computational Geometric Algorithm**
+Solving problems with CGAL library: **Basic Computational Geometric Algorithms**
 
 - Hit (Intersection)
 - First Hit (Intersection)
@@ -41,14 +41,26 @@ Solving problems with CGAL library: **Basic Computational Geometric Algorithm**
 
 
 
-### Week 4 (In review)
+### Week 4
 
 Solving graph problem with BGL library: **Basic Graph Algorithms**
 
-- First Step with BGL
-- Ant Challenge
-- Buddy Selection
-- Shortest Paths
+- First Step with BGL (MST, Dijkstra)
+- Ant Challenge (MST, Dijkstra)
+- Buddy Selection (Maximum Matching)
+- Shortest Paths (Dijkstra)
+
+
+
+### Week 5 (Under review)
+
+**Greedy** Algorithms, **Brute Force** Algorithms (and Split & List Technique)
+
+- Planks
+- Boats
+- Octopussy
+- Punch
+- Light at the Museum
 
 
 
