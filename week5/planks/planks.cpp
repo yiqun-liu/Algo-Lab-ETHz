@@ -2,9 +2,9 @@
 #include <vector>
 #include <map>
 
-typedef std::vector<int> Layout;
+typedef std::vector<int> Layout; // total length of planks on each side
 
-// Reuse previous resuls: compute in a BFS manner
+// Reuse previous results: compute in a BFS manner
 // 00, 10, 20, 30, 01, 11, 21, 31, 02, 12, 22..
 void bruteForce(std::vector<Layout> &out, int n, const std::vector<int>& planks)
 {

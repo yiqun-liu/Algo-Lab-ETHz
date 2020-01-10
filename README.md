@@ -52,15 +52,15 @@ Solving graph problem with BGL library: **Basic Graph Algorithms**
 
 
 
-### Week 5 (Under review)
+### Week 5
 
 **Greedy** Algorithms, **Brute Force** Algorithms (and Split & List Technique)
 
-- Planks
-- Boats
-- Octopussy
-- Punch
-- Light at the Museum
+- Boats (Greedy)
+- Octopussy (Greedy)
+- Punch (Dynamic Programming)
+- Light at the Museum  (Brute Force: Split & List)
+- **Planks (Brute Force: Split & List)**
 
 
 
@@ -121,7 +121,8 @@ Some personal experience
 
 - A non-void function without a return statement works fine on my own PC, but sometimes caused a TL in OJ
   - if OJ result is not as expected, compile with `-Wall` option
-- C's `qsort` once caused a 'forbidden'. However, C++'s `std::sort` works fine...
+- C's `qsort` once caused a `forbidden` error. However, C++'s `std::sort` always works fine...
+- When your needs a lot of memory, use `std::vector` instead of C's array
 
 
 
