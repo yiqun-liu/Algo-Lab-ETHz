@@ -68,10 +68,10 @@ Solving graph problem with BGL library: **Basic Graph Algorithms**
 
 Solving graph problem with BGL library: **Maximum Flows**
 
-- Coin Tossing (A variation of "Soccer Prediction" in the Slides)
+- Coin Tossing Tournament(A variation of "Soccer Prediction" in the tutorial)
 - Shopping Trip (Edge Disjoint Paths)
 - Tetris (Edge Disjoint Paths)
-- London (Model assignment/selection as a maximum flows problem, and keep the graph small)
+- London (Construct smaller network for efficiency)
 
 
 

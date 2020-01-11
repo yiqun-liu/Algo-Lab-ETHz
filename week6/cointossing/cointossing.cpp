@@ -1,115 +1,101 @@
-#include <iostream>
-
-// ---------sample code-----------
+#include <cstdio>
+#include <cstring>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/push_relabel_max_flow.hpp>
 
-// Graph Type with nested interior edge properties for flow algorithms
+const int MAX_N = 200, MAX_M = 1000;
+int points[MAX_N], player[MAX_M][2];
+
+
+// ---- Sample Code ----
 typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> traits;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
-    boost::property<boost::edge_capacity_t, long,
-        boost::property<boost::edge_residual_capacity_t, long,
-            boost::property<boost::edge_reverse_t, traits::edge_descriptor > > > > graph;
-
-typedef traits::vertex_descriptor vertex_desc;
-typedef traits::edge_descriptor edge_desc;
+    boost::property<boost::edge_capacity_t, int,
+        boost::property<boost::edge_residual_capacity_t, int,
+            boost::property<boost::edge_reverse_t, traits::edge_descriptor>>>> graph;
 
 class edge_adder {
-  graph &G;
-
+    graph &G;
  public:
-  explicit edge_adder(graph &G) : G(G) {}
-
-  void add_edge(int from, int to, long capacity) {
-    auto c_map = boost::get(boost::edge_capacity, G);
-    auto r_map = boost::get(boost::edge_reverse, G);
-    const auto e = boost::add_edge(from, to, G).first;
-    const auto rev_e = boost::add_edge(to, from, G).first;
-    c_map[e] = capacity;
-    c_map[rev_e] = 0; // reverse edge has no capacity!
-    r_map[e] = rev_e;
-    r_map[rev_e] = e;
-  }
+    explicit edge_adder(graph &G) : G(G) {}
+    void add_edge(int from, int to, int capacity) {
+        auto c_map = boost::get(boost::edge_capacity, G);
+        auto r_map = boost::get(boost::edge_reverse, G);
+        const auto e = boost::add_edge(from, to, G).first;
+        const auto rev_e = boost::add_edge(to, from, G).first;
+        c_map[e] = capacity;
+        c_map[rev_e] = 0; // reverse edge has no capacity!
+        r_map[e] = rev_e;
+        r_map[rev_e] = e;
+    }
 };
-// ---------sample code end-----------
-
-const int MAX_M = 1000;
-const int MAX_N = 200;
-
-int score[MAX_N];
+// ---- Sample Code End ----
 
 void testcase()
 {
     int n, m;
-    std::cin >> n >> m;
+    scanf("%d%d", &n, &m);
 
-    graph g(n); // at least n players
-    edge_adder adder(g);
-
-    memset(score, 0, sizeof(score[0]) * n);
-    int roundIdx = n;
+    int unknown = 0;
+    memset(points, 0, sizeof(int) * n); // points a player need to get to meet the final points
     for (int i = 0; i < m; i++)
     {
-        int a, b, c;
-        std::cin >> a >> b >> c;
-        switch (c)
+        int p1, p2, result;
+        scanf("%d%d%d", &p1, &p2, &result);
+        if (result == 0)
         {
-        case 0: // not recorded
-            adder.add_edge(roundIdx, a, 1);
-            adder.add_edge(roundIdx, b, 1);
-            roundIdx++;
-            break;
-        case 1:
-            score[a]++; break;
-        case 2:
-            score[b]++; break;
+            player[unknown][0] = p1;
+            player[unknown++][1] = p2;
         }
+        else if (result == 1) // p1 won
+            points[p1]--; // verified point = -(point to assign)
+        else // p2 won
+            points[p2]--;
     }
-    const vertex_desc v_source = boost::add_vertex(g);
-    const vertex_desc v_target = boost::add_vertex(g);
-    int unrecorded = roundIdx - n;
 
-    bool possible = true, needRun = false;
+    bool possible = true;
     int sum = 0;
     for (int i = 0; i < n; i++)
     {
-        int record;
-        std::cin >> record;
-        score[i] = record - score[i]; // to score
-        sum += score[i];
-        if (score[i] < 0) possible = false;
-        if (score[i] > 0) needRun = true;
+        int finalPoints;
+        scanf("%d", &finalPoints);
+        points[i] += finalPoints;
+        if (points[i] < 0)
+            possible = false;
+        sum += points[i];
     }
 
-    if (!possible || sum != unrecorded)
+    if (!possible || sum != unknown) // Judge by other feature
     {
-        std::cout << "no\n";
-        return;
-    }
-    if (!needRun)
-    {
-        std::cout << "yes\n";
+        printf("no\n");
         return;
     }
 
-    // TODO: consider scenario: only a small portion of the game is not recorded
-    // Add super source & target
+    // Construct Graph: player:[0,n-1], game:[n, n+unknown-1]
+    const int baseGame = n, source = n + unknown, target = n + unknown + 1;
+    graph G(n + unknown + 2);
+    edge_adder adder(G);
+    for (int i = 0; i < unknown; i++)
+    {
+        int gameIdx = baseGame + i;
+        adder.add_edge(source, gameIdx, 1);
+        adder.add_edge(gameIdx, player[i][0], 1);
+        adder.add_edge(gameIdx, player[i][1], 1);
+    }
     for (int i = 0; i < n; i++)
-        adder.add_edge(i, v_target, score[i]);
-    for (int i = n; i < roundIdx; i++)
-        adder.add_edge(v_source, i, 1);
+        adder.add_edge(i, target, points[i]);
     
-    long flow = boost::push_relabel_max_flow(g, v_source, v_target);
-    if (flow == unrecorded)
-        std::cout << "yes\n";
+    int flow = boost::push_relabel_max_flow(G, source, target);
+    if (flow == unknown)
+        printf("yes\n");
     else
-        std::cout << "no\n";
+        printf("no\n");
 }
 
 int main()
 {
-    std::ios_base::sync_with_stdio(false);
     int t;
-    std::cin >> t;
+    scanf("%d", &t);
     while(t--) testcase();
+    return 0;
 }

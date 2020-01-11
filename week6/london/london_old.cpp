@@ -1,15 +1,3 @@
-/*
-
-Name	Result	Points	CPU Time
-1	sample	correct	0	0s
-2	test1	correct	10	0.003s
-3	test2	correct	10	0.004s
-4	test3	correct	20	0.008s
-5	test4	correct	20	0.015s
-6	test5	correct	20	0.168s
-7	test6	correct	20	0.168s
-*/
-
 #include <iostream>
 #include <string>
 
@@ -23,9 +11,6 @@ typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost:
     boost::property<boost::edge_capacity_t, long,
         boost::property<boost::edge_residual_capacity_t, long,
             boost::property<boost::edge_reverse_t, traits::edge_descriptor > > > > graph;
-
-typedef traits::vertex_descriptor vertex_desc;
-typedef traits::edge_descriptor edge_desc;
 
 class edge_adder {
 	graph &G;
