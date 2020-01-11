@@ -44,6 +44,17 @@ Lessons learned:
 
 It takes me a long time to realize that it is essentially the same problem as "light of the museum".
 
-I was trying to assign planks to each sides. This is hard because number of planks of each side varies, depending on your choice. Backtracking is a seemingly possible way, but I think it needs a lot of effort to code it correctly and elegantly.
+As for the coding, "light of the museum" is more difficult, because now we only have to deal with 4 sides. In that problem number of room is variable, and we have to deal with the duplicates.
 
-For this problem, it is much easier to decide "sides" for each plank, as we only have constant decisions to make. We can encode all possibilities via 4-base encoding. I reused a little computations by computing it in BFS order, like what I do in "light of the museum".
+But instructors consider this problem as an advanced exercise. The reason is at the modeling part. I think the most obvious hint is the input specifications (n <= 20, indicating brute force is the intended solution)... The description talking about what is "really different" really misleads me.
+
+A key problem how to enumerate all possibilities. Note that each plank has limited, enumerable state (belongs to the 1st , 2nd, 3rd or 4th side), thus it's natural to make breakthrough at this point. If we consider a plank-layout as plank-to-side assignment (which is very similar to 0-1 assignment in Knapsack problem and "light of the museum"), and enumerate such assignment, we can see that:
+
+- there is no **permutations of the planks within a side** - it is directly a combination at this level, nice.
+- **permutations of the sides** will be done. But fortunately, we know how many times we counted a single plank-layout: 4!=24
+
+This is exactly we want.
+
+
+
+By the way, redundancy handling appears to be important in my implementation (It is not surprsing, as the same layout repeats 24 times). Also, although the final output is guaranteed to <= 2^31, as there are redundancies, our counting results can go over this limit, resulting in overflow. Use `long long` or `double`.
