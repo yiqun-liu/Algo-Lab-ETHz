@@ -1,57 +1,55 @@
 #include <cstdio>
+#include <cmath>
 #include <CGAL/QP_models.h>
 #include <CGAL/QP_functions.h>
 #include <CGAL/Gmpz.h>
 
-// input & solver types
 typedef int IT;
 typedef CGAL::Gmpz ET;
 
-// program & solution types
 typedef CGAL::Quadratic_program<IT> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 
 void testcase(int n)
-{   
+{
     int d;
     scanf("%d", &d);
 
-    Program lp (CGAL::SMALLER, false, 0, false, 0);
+    Program lp(CGAL::SMALLER, false, 0, false, 0); // no variable bounds
 
-    // if all constrains satisfied, distance is: d = ( -Sum_{aij * xj} + bi ) / Z
-    // transform this equation we can get: Sum_{aij * xj} + Z * d = bi
-    // r = min{d1, d2, ... dn}, so r <= d
-    // so we can satisfy Sum_{aij * xj} <= bi by satisfying Sum_{aij * xj} + Z * r <= bi (r >= 0)
-    
-    for (int i = 0; i < n; i++)
+    // variable: (0, 1, ... d-1) - coordinates of center, [d] - radius
+    const int radius_idx = d;
+    lp.set_l(radius_idx, true, 0); // radius >= 0
+    lp.set_c(radius_idx, -1); // minimize (-radius)
+
+    // Set linear constraints
+    for (int i = 0; i < n; i++) // plane
     {
-        double squareSum = 0;
-        int cof; // elemetns of matrix
-        for (int j = 0; j < d; j++)
+        int squareSum = 0;
+        for (int j = 0; j < d; j++) // variable
         {
-            scanf("%d", &cof);
-            squareSum += cof * cof;
-            lp.set_a(j, i, cof);
+            int a;
+            scanf("%d", &a);
+            lp.set_a(j, i, a);
+            
+            squareSum += a * a;
         }
-        lp.set_a(d, i, std::sqrt(squareSum)); // we plug in minDist as a var
-        
-        scanf("%d", &cof);
-        lp.set_b(i, cof);
-    }
-    lp.set_l(d, true, 0); // r >= 0
+        int norm = sqrt(squareSum); // int is fine
+        lp.set_a(radius_idx, i, norm);
 
-    lp.set_c(d, -1); // minimize -r
+        int b;
+        scanf("%d", &b);
+        lp.set_b(i, b);
+    }
 
     Solution s = CGAL::solve_linear_program(lp, ET());
     if (s.is_infeasible())
         printf("none\n");
     else if (s.is_unbounded())
         printf("inf\n");
-    else
-    {
-        int radius = -CGAL::to_double(s.objective_value());
-        printf("%d\n", radius);
-    }
+    else // optimal
+        printf("%d\n", (int)-CGAL::to_double(s.objective_value()) );
+    
 }
 
 int main()
@@ -63,6 +61,7 @@ int main()
         if (n)
             testcase(n);
         else
-            return 0;        
+            break;
     }
+    return 0;
 }

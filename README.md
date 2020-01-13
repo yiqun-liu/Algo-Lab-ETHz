@@ -77,15 +77,18 @@ Solving graph problem with BGL library: **Maximum Flows**
 
 ### Week 7
 
-Solving problems using CGAL library: **Linear Programming**
+Solving problems with CGAL library: **Linear Programming**
 
-TODO
+- Maximize it!
+- Diet
+- Inball
+- Radiation
 
 
 
 ### Week 8
 
-Solving graph problems using CGAL library: **Triangulation**, **Nearest Vertex**, **Motion Planning**
+Solving graph problems with CGAL library: **Triangulation**, **Nearest Vertex**, **Motion Planning**
 
 - Bistro (Voronoi Diagram)
 - Germs (Nearest Adjacent Vertex)

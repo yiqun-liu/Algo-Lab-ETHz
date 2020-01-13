@@ -1,126 +1,134 @@
-#include <cstdio>
+#include <iostream>
 #include <vector>
 #include <CGAL/QP_models.h>
 #include <CGAL/QP_functions.h>
 #include <CGAL/Gmpz.h>
 
-// input & solver types
-// typedef int IT;
-typedef CGAL::Gmpz IT; // might be (2^10)^30, we need Gmpz
+using std::vector; using std::cin; using std::cout; using std::endl;
+
+typedef CGAL::Gmpz IT;
 typedef CGAL::Gmpz ET;
 
-// program & solution types
 typedef CGAL::Quadratic_program<IT> Program;
 typedef CGAL::Quadratic_program_solution<ET> Solution;
 
-const int MAX_DEGREE = 30;
-typedef std::vector<IT> PowerList;
-typedef std::vector<PowerList> PowerTable;
+const int MAX_DEGREE = 30, MAX_SAMPLES = 50;
 
-void calcPowerTable(PowerTable& table);
-void generateProgram(Program& lp, int h, int t, int deg, 
-    const PowerTable& xTable, const PowerTable& yTable, const PowerTable& zTable);
+void splitNumber(int number, int piece, vector<int>& states, vector<vector<int> >& out)
+{
+    if (piece == 1)
+    {
+        states.push_back(number);
+        out.push_back(states);
+        states.pop_back();
+    }
+    else
+        for (int i = 0; i <= number; i++) // this piece
+        {
+            states.push_back(i);
+            splitNumber(number - i, piece - 1, states, out);
+            states.pop_back();
+        }
+}
+
+typedef vector<IT> Powers; // powers of a single number
+typedef vector<Powers> PowerList; // power of a group of numbers
 
 void testcase()
 {
-    int h, t;
-    scanf("%d%d", &h, &t);
+    int h, t; // health & tumor
+    cin >> h >> t;
 
-    int nSamples = h + t;
-    PowerTable  xTable(nSamples, PowerList(MAX_DEGREE + 1)),
-                yTable(nSamples, PowerList(MAX_DEGREE + 1)),
-                zTable(nSamples, PowerList(MAX_DEGREE + 1)); // nSamples * 30
+    vector<bool> alwaysZero(3, true);
+    vector<PowerList> powerTable(3, PowerList(h + t)); // variable, sample, exponent
 
-    int x, y, z;
-    for (int i = 0; i < h; i++)
-    {
-        scanf("%d%d%d", &x, &y, &z);
-        xTable[i][0] = yTable[i][0] = zTable[i][0] = 1; // even when x = 0. This is what we expected
-        xTable[i][1] = x; yTable[i][1] = y; zTable[i][1] = z;
-    }
-    for (int i = h; i < h + t; i++)
-    {
-        scanf("%d%d%d", &x, &y, &z);
-        xTable[i][0] = yTable[i][0] = zTable[i][0] = 1; // even if x = 0, this is what we expected
-        xTable[i][1] = x; yTable[i][1] = y; zTable[i][1] = z;
-    }
-    calcPowerTable(xTable); calcPowerTable(yTable); calcPowerTable(zTable);
+    for (int s = 0; s < h + t; s++) // samples
+        for (int i = 0; i < 3; i++) // x, y, z
+        {
+            int coordinate;
+            cin >> coordinate;
+            if (coordinate)
+                alwaysZero[i] = false;
+            
+            // precompute all powers
+            powerTable[i][s].push_back(1); // exponent = 0
+            if (coordinate)
+                for (int e = 1; e <= MAX_DEGREE; e++)
+                    powerTable[i][s].push_back( coordinate * powerTable[i][s].back() );
+            else // for some marginal speedup...
+                powerTable[i][s].resize(MAX_DEGREE + 1);
+        }
     
-    Program lp (CGAL::SMALLER, false, 0, false, 0); // lower bound: 0
+    // Unused variables: this is an key optimization
+    for (int i = 2; i >= 0; i--) // MUST be done in reverse order, otherwise consecutive erase will crash
+        if (alwaysZero[i])
+            powerTable.erase( powerTable.begin() + i );
     
-    if (h == 0 || t == 0) 
+    if (h == 0 || t == 0) // 0-degree polynomial suffices.
     {
-        printf("0\n");
+        cout << 0 << endl;
         return;
     }
-    
-    // cycling observed in test: use Bland's rule to avoid cycling
-    CGAL::Quadratic_program_options options;
-    options.set_pricing_strategy(CGAL::QP_BLAND);
-    for (int d = 1; d <= 30; d++) // degree
+    if (powerTable.size() == 0) // all variables are 0
     {
-        generateProgram(lp, h, t, d, xTable, yTable, zTable);
+        cout << "Impossible!\n";
+        return;
+    }
+
+    Program lp(CGAL::SMALLER, false, 0, false, 0); // no bounds on variables
+    CGAL::Quadratic_program_options options;
+    options.set_pricing_strategy(CGAL::QP_BLAND); // avoid cycling
+
+    // One-time initialize
+    for (int s = 0; s < h + t; s++)
+    {
+        if (s < h) // healthy
+            lp.set_a(0, s, 1);
+        else // tumor
+            lp.set_a(0, s, -1); // negated
+        lp.set_b(s, -1);
+    }
         
-        Solution s = CGAL::solve_linear_program(lp, ET(), options);
-        if (!s.is_infeasible())  // if solved
+    int index = 1; // index = 0 is already used by constant;
+    // Note that in the loop we only append, previously set parameters are untouched and reused
+    for (int d = 1; d <= MAX_DEGREE; d++) // degree
+    {
+        vector<int> temp;
+        vector<vector<int> > out;
+        splitNumber(d, powerTable.size(), temp, out); // split degree into exponents' sum
+
+        for (int i = 0; i < out.size(); i++) // one combination of exponents
         {
-            printf("%d\n", d);
+            for (int s = 0; s < h + t; s++) // samples
+            {
+                IT term = 1;
+                for (int var = 0; var < powerTable.size(); var++) // all non-zero varaibles
+                    term *= powerTable[var][s][ out[i][var] ];
+                
+                if (s < h) // healthy
+                    lp.set_a(index, s, term);
+                else // tumor
+                    lp.set_a(index, s, -term); // negated
+            }
+            index++;
+        }
+
+        Solution s = CGAL::solve_linear_program(lp, ET(), options);
+        if (!s.is_infeasible())
+        {
+            cout << d << endl;
             return;
         }
     }
-    printf("Impossible!\n");
-        
+
+    cout << "Impossible!\n";
 }
 
 int main()
 {
-    int n;
-    scanf("%d", &n);
-    while (n--) testcase();
+    std::ios_base::sync_with_stdio(false);
+    int t;
+    cin >> t;
+    while (t--) testcase();
     return 0;
-}
-
-void calcPowerTable(PowerTable& table)
-{
-    for (int i = 0; i < table.size(); i++)
-        if (table[i][1] != 0)
-            for (int j = 2; j <= MAX_DEGREE; j++)
-                table[i][j] = table[i][1] * table[i][j - 1];
-        else
-            std::fill(table[i].begin() + 1, table[i].end(), 0);
-}
-
-void generateProgram(Program& lp, int h, int t, int deg, 
-    const PowerTable& xTable, const PowerTable& yTable, const PowerTable& zTable)
-{
-    // no objective, and no need to do extra settings, because all are strict constrains
-    // healthy cells
-    for (int row = 0; row < h; row++)
-    {
-        int col = 0;
-        for (int ix = 0; ix <= deg; ix++)
-            for (int iy = 0; iy <= deg - ix; iy++)
-                for (int iz = 0; iz <= deg - ix - iy; iz++)
-                {
-                    lp.set_a(col, row, xTable[row][ix] * yTable[row][iy] * zTable[row][iz]);
-                    col++;
-                }
-        lp.set_b(row, -1); // strictly smaller than 0 --> func <= -1 
-        // (scales is not important, because there is no concept of unit in this problem)
-    }
-
-    // tumor cells
-    for (int row = h; row < h + t; row++)
-    {
-        int col = 0;
-        for (int ix = 0; ix <= deg; ix++)
-            for (int iy = 0; iy <= deg - ix; iy++)
-                for (int iz = 0; iz <= deg - ix - iy; iz++)
-                {
-                    // negate it to make it a "<= constrains"
-                    lp.set_a(col, row, -xTable[row][ix] * yTable[row][iy] * zTable[row][iz]);
-                    col++;
-                }
-        lp.set_b(row, -1); // strictly greater than 0 --> -func <= -1
-    }
 }
