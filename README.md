@@ -1,8 +1,8 @@
-# Personal Solutions (Algo-Lab@ETHz, HS19)
+# Algorithms Lab@ETHz, HS19
 
-I write code at computer rooms and also on my laptop, so I created this repo mainly to sync my working environment. (At least for now, I have no time to keep the repo 'tidy' and my codes sufficiently readable.)
+My own solutions to Algo-lab exercises.
 
-All final version codes have passed online judge (If there are several versions of solution, the one suffixed by greatest number is the final version).
+All codes have passed online judge.
 
 
 
@@ -82,7 +82,7 @@ Solving problems with CGAL library: **Linear Programming**
 - Maximize it!
 - Diet
 - Inball
-- Radiation
+- Radiation Therapy
 
 
 

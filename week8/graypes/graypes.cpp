@@ -1,8 +1,9 @@
-#include <iostream>
+#include <cstdio>
 #include <vector>
-#include <CGAL/Delaunay_triangulation_2.h>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-// #include <CGAL/Exact_predicates_exact_constructions_kernel_with_sqrt.h> // TL, use 
+#include <CGAL/Delaunay_triangulation_2.h>
+
+using std::vector;
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef CGAL::Delaunay_triangulation_2<K>  Triangulation;
@@ -10,42 +11,39 @@ typedef Triangulation::Edge_iterator  Edge_iterator;
 
 void testcase(int n)
 {
-    // 'graypes' position
-    std::vector<K::Point_2> pts;
-    pts.reserve(n);
+    vector<K::Point_2> points;
     for (int i = 0; i < n; i++)
     {
-        int x, y;
-        std::cin >> x >> y;
-        pts.push_back(K::Point_2(x, y));
+        double x, y;
+        scanf("%lf%lf", &x, &y);
+        points.push_back( K::Point_2(x, y) );
     }
 
-    // Generate Delaunay triangulation (used as Voronoi diagram)
     Triangulation t;
-    t.insert(pts.begin(), pts.end()); // O(N*logN)
+    t.insert( points.begin(), points.end() );
 
-    Edge_iterator e = t.finite_edges_begin();
-    K::FT minLength = t.segment(e).squared_length(), length;
-    for (e++; e != t.finite_edges_end(); ++e)
+    double minDist = -1; // squared
+    for (Edge_iterator e = t.finite_edges_begin(); e != t.finite_edges_end(); ++e)
     {
-        length = t.segment(e).squared_length();
-        if (length < minLength)
-            minLength = length;
+        double dist = t.segment(e).squared_length();
+        if (dist < minDist || minDist == -1)
+            minDist = dist;
     }
-    std::cout << ceil(sqrt(CGAL::to_double(minLength)) * 100 / 2.0) << "\n";
+    
+    int time = (int)ceil( sqrt(minDist) * 100 / 2 ); // must be mutual; second -> hundredth of second
+    printf("%d\n", time);
 }
 
 int main()
 {
-    std::ios_base::sync_with_stdio(false);
-    std::cout << std::fixed << std::setprecision(0); // No scientific notation
-    
-    int n;
-    std::cin >> n;
-    while (n)
+    while (true)
     {
-        testcase(n);
-        std::cin >> n;
+        int n;
+        scanf("%d", &n);
+        if (n)
+            testcase(n);
+        else
+            break;
     }
     return 0;
 }

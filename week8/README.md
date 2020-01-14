@@ -2,37 +2,42 @@
 
 ## Bistro
 
-Voronoi Diagram
+**Voronoi Diagram**
 
-
-
-## Germs
-
-In Delaunay triangulation, each point has an edge to all closest other points
-
-
-
-Here I assigned an index to each edge
-
-TODO: check if some edges will be iterated twice
+Hello World problem.
 
 
 
 ## Graypes
 
+**Nearest Neighbor Graph**
+
+In Delaunay triangulation, each point has an edge to all closest other points. 
+
+Although the description elaborates on how graypes will act if they have several closest graype, we can safely ignore it.
+
+
+
+## Germs
+
+**Nearest Neighbor Graph**
+
 In Delaunay triangulation, each point has an edge to all closest other points
-
-
-
-(Though the description elaborates on how graypes will act if they have several closest graype, we can safely ignore it. This is the key to code a simple solution)
 
 
 
 ## H1N1
 
-Motion planning (Voronoi diagram is construction using perpendicular **bisector**)
+**Motion planning** (Voronoi diagram can be viewed as constructed using perpendicular bisector)
 
 
+
+Jan. 14th: I implemented a new version. It seems that I am stuck with my stereotype with Dijkstra. The new code is simpler and slightly faster. Here are the differences:
+
+- As all heap-like structure in STL lacks update-key support, we allow the duplicate elements, and skip it when it is visited the second time.
+- `->info()` is now used to store squared distance rather than index. Index is not necessary for this problem
+
+---
 
 It is safest to walk through two infected people by their perpendicular bisector (if we cannot, then there is no way we can walk through them).
 
@@ -46,8 +51,3 @@ Therefore, we can do the follows:
 It is an edge-centered algorithms, thus hard to program using `CGAL::triangulation`. (`Edge` here is simply a`std::pair<Face_handle, int>` with few operation supported). Fortunately, it can be easily switched into a face-centered algorithms: we first decide which face we are in; safely (keep Voronoi in mind and you'll know why) move to the centroid of this face, and move to an infinite face step by step.
 
 My final solution is face-centered. There is one implementation detail worth mentioning: As `std::prority_queue` does not support key update. I use balanced tree instead. `std::set` and `std::map` is NOT the right substitution: If there are different elements with same key, their behaviors is not what we want. Use `std::multiset` and `std::multimap` and deal with the tie carefully.
-
-
-
-
-

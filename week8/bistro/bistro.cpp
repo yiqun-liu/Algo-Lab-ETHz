@@ -1,52 +1,51 @@
-#include <iostream>
+#include <cstdio>
 #include <vector>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
 
+using std::vector;
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef CGAL::Delaunay_triangulation_2<K>  Triangulation;
-typedef Triangulation::Edge_iterator  Edge_iterator;
 
 void testcase(int n)
 {
-    // Process existing points
-    std::vector<K::Point_2> pts;
-    pts.reserve(n);
+    vector<K::Point_2> points;
+    points.reserve(n);
+
     for (int i = 0; i < n; i++)
     {
-        int x, y;
-        std::cin >> x >> y;
-        pts.push_back(K::Point_2(x, y));
+        double x, y;
+        scanf("%lf%lf", &x, &y);
+        points.push_back(K::Point_2(x, y));
     }
 
-    // Generate Delaunay triangulation (used as Voronoi diagram)
     Triangulation t;
-    t.insert(pts.begin(), pts.end()); // O(N*logN)
+    t.insert(points.begin(), points.end());
 
-    // Queries
     int m;
-    std::cin >> m;
+    scanf("%d", &m);
     for (int i = 0; i < m; i++)
     {
-        int x, y;
-        std::cin >> x >> y;
-        K::Point_2 p(x, y);
-        Triangulation::Vertex_handle v = t.nearest_vertex(p); // O(logN)
-        std::cout << CGAL::squared_distance(v->point(), p) << std::endl;
+        double x, y;
+        scanf("%lf%lf", &x, &y);
+        K::Point_2 location(x, y);
+        K::Point_2 nearest = t.nearest_vertex(location)->point();
+        double squaredDist = CGAL::squared_distance(location, nearest);
+        printf("%.0f\n", squaredDist);
     }
 }
 
 int main()
 {
-    std::ios_base::sync_with_stdio(false);
-    std::cout << std::fixed << std::setprecision(0); // No scientific notation
-    
-    int n;
-    std::cin >> n;
-    while (n)
+    while (true)
     {
-        testcase(n);
-        std::cin >> n;
+        int n;
+        scanf("%d", &n);
+        if (n)
+            testcase(n);
+        else
+            break;
     }
     return 0;
 }

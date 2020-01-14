@@ -22,7 +22,7 @@ My initial idea is describe the ball by center coordinates and radius. We create
 
 
 
-## Radiation
+## Radiation Therapy
 
 - strict inequalities: we can do this by leaving a constant margin in the inequalities. The actual number does not affect the existence of solution: as the margin scales, the polynomial could scale in same ratio.
 - data range: 2<sup>300 </sup> might show up in this problem, use `CGAL::Gmpz`

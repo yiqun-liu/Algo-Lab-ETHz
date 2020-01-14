@@ -1,84 +1,78 @@
-#include <iostream>
+#include <cstdio>
 #include <vector>
+#include <algorithm>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Delaunay_triangulation_2.h>
-#include <CGAL/Triangulation_vertex_base_with_info_2.h> // need to add index info on vertex
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
 
-// https://doc.cgal.org/latest/Triangulation_2/Triangulation_2_2info_insert_with_pair_iterator_2_8cpp-example.html#_a1
-// https://doc.cgal.org/latest/Spatial_sorting/index.html#title4
+using std::vector; using std::pair; using std::make_pair;
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef CGAL::Triangulation_vertex_base_with_info_2<int, K> Vb;
+typedef CGAL::Triangulation_vertex_base_with_info_2<int,K> Vb;
 typedef CGAL::Triangulation_data_structure_2<Vb> Tds;
 typedef CGAL::Delaunay_triangulation_2<K,Tds> Triangulation;
 typedef Triangulation::Edge_iterator  Edge_iterator;
 
-inline double getTime(K::FT squaredDist)
+double min2(double n1, double n2) { return n1 < n2 ? n1 : n2; }
+double min4(double n1, double n2, double n3, double n4)
 {
-    // 2 * t^2 + 1 = d
-    double dist = sqrt(CGAL::to_double(squaredDist));
-    if (dist <= 1) return 0;
-    return ceil(sqrt((dist - 1) / 2));
+    return min2( min2(n1, n2), min2(n3, n4) );
+}
+int getTime(double squaredDist)
+{
+    return ceil(sqrt( (sqrt(squaredDist) - 1) * 0.5 ));
 }
 
+typedef pair<K::Point_2, int> P;
 void testcase(int n)
 {
-    // Process existing points
+    // size of the dish
     int l, b, r, t;
-    std::cin >> l >> b >> r >> t;
+    scanf("%d%d%d%d", &l, &b, &r, &t);
+    
+    vector<P> points;
+    vector<double> minDist; // store squared min distance
+    points.reserve(n);
+    minDist.reserve(n);
 
-    std::vector<K::Point_2> pts;
-    std::vector<K::FT> minDist; // squared distance
-    pts.reserve(n);
     for (int i = 0; i < n; i++)
     {
         int x, y;
-        std::cin >> x >> y;
-        pts.push_back(K::Point_2(x, y));
+        scanf("%d%d", &x, &y);
+        points.push_back( make_pair( K::Point_2(x,y), i ) ); // index i
+        minDist.push_back( min4( x - l, r - x, y - b, t - y ) );
+        // it is (2d)^2: we will calculate time as if the distance is 
+        // shortened from two ends, so we doubled d between germs and boundaries
+        minDist[i] *= minDist[i] * 4; 
     }
 
     Triangulation triangle;
-    // Generate Delaunay triangulation robustly
-    CGAL::spatial_sort(pts.begin(),pts.end());
-    for (int i = 0; i < n; i++)
-    {
-        K::FT x = pts[i].x(), y = pts[i].y();
-        K::FT dist = x - l; // dist to boundary
-        dist = std::min(dist, r - x);
-        dist = std::min(dist, y - b);
-        dist = std::min(dist, t - y);
-        
-        Triangulation::Vertex_handle v = triangle.insert(pts[i]);
-        v->info() = i; // index for later reference
-        minDist.push_back(dist * 2 * dist * 2); // avoid sqrt
-    }
+    triangle.insert(points.begin(), points.end());
 
     for (Edge_iterator e = triangle.finite_edges_begin(); e != triangle.finite_edges_end(); ++e)
     {
-        K::FT squaredDist = triangle.segment(e).squared_length();
-        Triangulation::Vertex_handle v1 = e->first->vertex((e->second + 1) % 3);
-        Triangulation::Vertex_handle v2 = e->first->vertex((e->second + 2) % 3);
-        int idx1 = v1->info(), idx2 = v2->info();
-        minDist[idx1] = std::min(minDist[idx1], squaredDist);
-        minDist[idx2] = std::min(minDist[idx2], squaredDist);
+        int v1_idx = e->first->vertex((e->second + 1) % 3)->info();
+        int v2_idx = e->first->vertex((e->second + 2) % 3)->info();
+        double dist = triangle.segment(e).squared_length();
+        minDist[v1_idx] = min2(minDist[v1_idx], dist);
+        minDist[v2_idx] = min2(minDist[v2_idx], dist);
     }
-
+    
     std::sort(minDist.begin(), minDist.end());
-    std::cout << getTime(minDist[0]) << ' ' << getTime(minDist[n / 2]) 
-            << ' ' << getTime(minDist[n - 1]) << std::endl;
+    
+    printf("%d %d %d\n", getTime(minDist[0]), getTime(minDist[n / 2]), getTime(minDist[n - 1]));
 }
 
-int main()
-{
-    std::ios_base::sync_with_stdio(false);
-    std::cout << std::fixed << std::setprecision(0); // No scientific notation
-    
-    int n;
-    std::cin >> n;
-    while (n)
+ int main()
+ {
+    while (true)
     {
-        testcase(n);
-        std::cin >> n;
+        int n;
+        scanf("%d", &n);
+        if (n)
+            testcase(n);
+        else
+            break;
     }
     return 0;
-}
+ }
