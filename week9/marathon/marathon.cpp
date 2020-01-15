@@ -1,158 +1,121 @@
 #include <cstdio>
 #include <vector>
-#include <map>
 #include <queue>
-// ---------sample code-----------
+#include <limits>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/push_relabel_max_flow.hpp>
 
-// Graph Type with nested interior edge properties for flow algorithms
+using std::vector; using std::queue;
+
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    boost::no_property, boost::property<boost::edge_weight_t, int> >    weighted_graph;
+typedef boost::property_map<weighted_graph, boost::edge_weight_t>::type weight_map;
+
 typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> traits;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
-    boost::property<boost::edge_capacity_t, long,
-        boost::property<boost::edge_residual_capacity_t, long,
-            boost::property<boost::edge_reverse_t, traits::edge_descriptor > > > > graph;
+    boost::property<boost::edge_capacity_t, int,
+        boost::property<boost::edge_residual_capacity_t, int,
+            boost::property<boost::edge_reverse_t, traits::edge_descriptor>>>> flow_graph;
 
-typedef traits::vertex_descriptor vertex_desc;
-typedef traits::edge_descriptor edge_desc;
-
+// for flow graph
 class edge_adder {
-  graph &G;
+    flow_graph &G;
 
  public:
-  explicit edge_adder(graph &G) : G(G) {}
+    explicit edge_adder(flow_graph &G) : G(G) {}
 
-  void add_edge(int from, int to, long capacity) {
-    auto c_map = boost::get(boost::edge_capacity, G);
-    auto r_map = boost::get(boost::edge_reverse, G);
-    const auto e = boost::add_edge(from, to, G).first;
-    const auto rev_e = boost::add_edge(to, from, G).first;
-    c_map[e] = capacity;
-    c_map[rev_e] = 0; // reverse edge has no capacity!
-    r_map[e] = rev_e;
-    r_map[rev_e] = e;
-  }
-};
-// ---------sample code end-----------
-
-struct NodeStruct
-{
-    int toVertex;
-    int length;
-    int width;
-};
-typedef struct NodeStruct Node;
-
-const int UNKNOWN = -1;
-// we need f for acceleration
-bool dijkstra(const std::vector<std::vector<Node> > &adjList, int n, int s, int f,
-    std::vector<int>& dist, std::vector<std::vector<std::pair<int, int> > >& pred)
-{
-    std::vector<bool> known(n, false);
-    std::multimap<int, int> minHeap; // dist -> vertex id
-    minHeap.insert(std::make_pair(0, s));
-    dist[s] = 0;
-
-    while (!minHeap.empty())
-    {
-        std::multimap<int, int>::iterator it = minHeap.begin();
-        const int from = it->second;
-        known[from] = true;
-        minHeap.erase(it);
-
-        if (from == f)
-            return true; // Reachable, no need to compute dist anymore
-
-        for (int i = 0; i < adjList[from].size(); i++)
-        {
-            const int& to = adjList[from][i].toVertex, &length = adjList[from][i].length,
-                &width = adjList[from][i].width;
-            if (known[to]) continue;
-            
-            if (dist[to] == UNKNOWN) // not in heap
-            {
-                dist[to] = dist[from] + length;
-                minHeap.insert(std::make_pair(dist[to], to));
-                pred[to].push_back(std::make_pair(from, width));
-            }
-            else if (dist[from] + length == dist[to]) // add another predecessor
-                pred[to].push_back(std::make_pair(from, width));
-            else if (dist[from] + length < dist[to]) // update dist in heap
-            {
-                std::multimap<int, int>::iterator toDelete = minHeap.find(dist[to]);
-                while (toDelete->second != to)
-                    toDelete++;
-                minHeap.erase(toDelete);
-
-                dist[to] = dist[from] + length;
-                minHeap.insert(std::make_pair(dist[to], to));
-                pred[to].clear();
-                pred[to].push_back(std::make_pair(from, width));
-            }
-        }
+    void add_edge(int from, int to, long capacity) {
+        auto c_map = boost::get(boost::edge_capacity, G);
+        auto r_map = boost::get(boost::edge_reverse, G);
+        const auto e = boost::add_edge(from, to, G).first;
+        const auto rev_e = boost::add_edge(to, from, G).first;
+        c_map[e] = capacity;
+        c_map[rev_e] = 0;
+        r_map[e] = rev_e;
+        r_map[rev_e] = e;
     }
+};
 
-    return false; // Unreachable
-}
+struct NeighborNode
+{
+    int from; // not to
+    int width;
+    int length;
+};
+typedef struct NeighborNode Neighbor;
+typedef vector<Neighbor> VertList;
+typedef vector<VertList> AdjList;
 
 
 void testcase()
 {
-    int n, m, s, f;
-    scanf("%d%d%d%d", &n, &m, &s, &f);
-    
-    std::vector<std::vector<Node> > adjList(n);
-    for(int i = 0; i < m; i++)
+    int nVerts, nEdges, source, target;
+    scanf("%d%d%d%d", &nVerts, &nEdges, &source, &target);
+
+    AdjList adjList(nVerts);
+    weighted_graph G1(nVerts); // Dijkstra
+    weight_map weights = boost::get(boost::edge_weight, G1);
+
+    traits::edge_descriptor e;
+    for (int i = 0; i < nEdges; i++)
     {
-        Node node;
-        int a, b, width, length;
-        scanf("%d%d%d%d", &a, &b, &width, &length);
-        node.length = length; node.width = width;
-        // all edges are bidirectional
-        node.toVertex = b;
-        adjList[a].push_back(node);
+        int from, to, width, length;
+        scanf("%d%d%d%d", &from, &to, &width, &length);
+        e = boost::add_edge(from, to, G1).first; weights[e] = length;
+        e = boost::add_edge(to, from, G1).first; weights[e] = length;
         
-        node.toVertex = a;
-        adjList[b].push_back(node);
-        
-        // It seems we doubled the width of street, but this causes no problem as length>0
+        Neighbor temp; temp.from = from; temp.width = width, temp.length = length;
+        adjList[to].push_back(temp);
+        temp.from = to;
+        adjList[from].push_back(temp);
+
     }
 
-    std::vector<int> dist(n, UNKNOWN);
-    std::vector<std::vector<std::pair<int, int> > > pred(n);
+    std::vector<int> dist_map(nVerts);
+    int INFINITE = std::numeric_limits<int>::max();
 
-    if (dijkstra(adjList, n, s, f, dist, pred) == false) // not reachable
+    boost::dijkstra_shortest_paths(G1, source,
+        boost::distance_map(boost::make_iterator_property_map(
+            dist_map.begin(), boost::get(boost::vertex_index, G1))));
+    
+    if (dist_map[target] == INFINITE) // not reachable
     {
         printf("0\n");
         return;
     }
-
-    graph G(n);
-    edge_adder adder(G);
     
-    std::queue<int> Q;
-    std::vector<bool> added(n, false);
-    // build graphs by BFS
-    Q.push(f);
-    added[f] = true;
+    flow_graph G2(nVerts); // maximum flow
+    edge_adder adder(G2);
 
-    while(!Q.empty())
+    // Construct G2
+    // BFS
+    vector<bool> visited(nVerts, false);
+    queue<int> Q;
+
+    Q.push(target);
+    visited[target] = true;
+    while (!Q.empty())
     {
         int to = Q.front(); Q.pop();
-        for (int i = 0; i < pred[to].size(); i++)
-        {
-            const int& from = pred[to][i].first, &width = pred[to][i].second;
-            adder.add_edge(from, to, width);
 
-            if (!added[from] && from != s)
+        for (int i = 0; i < adjList[to].size(); i++)
+        {
+            int &from = adjList[to][i].from, &width = adjList[to][i].width, &length = adjList[to][i].length;
+            if ( dist_map[from] == INFINITE || dist_map[to] -  dist_map[from] != length )
+                continue;
+
+            // 'from' may be on shortest path (if not, no harm)
+            adder.add_edge(from, to, width);
+            if (!visited[from])
             {
                 Q.push(from);
-                added[from] = true;
+                visited[from] = true;
             }
         }
     }
 
-    int flow = boost::push_relabel_max_flow(G, s, f);
+    int flow = boost::push_relabel_max_flow(G2, source, target);
     printf("%d\n", flow);
 }
 
@@ -160,6 +123,6 @@ int main()
 {
     int t;
     scanf("%d", &t);
-    while (t--) testcase();
+    while(t--) testcase();
     return 0;
 }

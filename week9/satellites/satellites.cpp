@@ -1,108 +1,105 @@
 #include <cstdio>
 #include <vector>
 #include <queue>
-// ---------sample code-----------
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/push_relabel_max_flow.hpp>
+#include <boost/tuple/tuple.hpp>
 
-// Graph Type with nested interior edge properties for flow algorithms
+using std::vector; using std::queue;
+
 typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> traits;
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
-    boost::property<boost::edge_capacity_t, long,
-        boost::property<boost::edge_residual_capacity_t, long,
-            boost::property<boost::edge_reverse_t, traits::edge_descriptor > > > > graph;
-
-typedef traits::vertex_descriptor vertex_desc;
-typedef traits::edge_descriptor edge_desc;
-typedef	boost::graph_traits<graph>::out_edge_iterator			out_edge_it;
+    boost::property<boost::edge_capacity_t, int,
+        boost::property<boost::edge_residual_capacity_t, int,
+            boost::property<boost::edge_reverse_t, traits::edge_descriptor> > > >    graph;
+typedef boost::graph_traits<graph>::edge_descriptor      edge_desc;
+typedef boost::graph_traits<graph>::out_edge_iterator    out_edge_it;
 
 class edge_adder {
-  graph &G;
+    graph &G;
 
- public:
-  explicit edge_adder(graph &G) : G(G) {}
+public:
+    explicit edge_adder(graph &G) : G(G) {}
 
-  void add_edge(int from, int to, long capacity) {
-    auto c_map = boost::get(boost::edge_capacity, G);
-    auto r_map = boost::get(boost::edge_reverse, G);
-    const auto e = boost::add_edge(from, to, G).first;
-    const auto rev_e = boost::add_edge(to, from, G).first;
-    c_map[e] = capacity;
-    c_map[rev_e] = 0; // reverse edge has no capacity!
-    r_map[e] = rev_e;
-    r_map[rev_e] = e;
-  }
+    void add_edge(int from, int to, int capacity) {
+        auto c_map = boost::get(boost::edge_capacity, G);
+        auto r_map = boost::get(boost::edge_reverse, G);
+        const edge_desc e = boost::add_edge(from, to, G).first;
+        const edge_desc rev_e = boost::add_edge(to, from, G).first;
+        c_map[e] = capacity;
+        c_map[rev_e] = 0; // reverse edge has no capacity!
+        r_map[e] = rev_e;
+        r_map[rev_e] = e;
+    }
 };
-// ---------sample code end-----------
 
-const int UNPAIRED = -1;
 void testcase()
 {
-    int nGronud, nSatellite, nLink;
-    scanf("%d%d%d", &nGronud, &nSatellite, &nLink);
+    int g, s, l;
+    scanf("%d%d%d", &g, &s, &l);
 
-    // layout
-    const int baseG = 0, baseS = nGronud; // node id = id within type + type base
-    const int source = nGronud + nSatellite, target = source + 1, nNode = target + 1;
+    // vertex index: 0~(g-1) ground station, g~(g+s-1) satellites, source, sink
+    const int baseS = g, source = g + s, target = g + s + 1, nVerts = target + 1;
+    graph G(nVerts);
+    edge_adder adder(G);
 
-    graph G(nNode);
-	edge_adder adder(G);
-
-    for (int i = 0; i < nLink; i++)
+    // Construct Graph
+    for (int i = 0; i < l; i++) // ground -> satellite
     {
-        int gIdx, sIdx;
-        scanf("%d%d", &gIdx, &sIdx);
-        adder.add_edge(baseG + gIdx, baseS + sIdx, 1);
+        int ground, satellite;
+        scanf("%d%d", &ground, &satellite);
+        adder.add_edge(ground, baseS + satellite, 1);
     }
-    for (int i = 0; i < nGronud; i++)
-        adder.add_edge(source, baseG + i, 1);
-    for (int i = 0; i < nSatellite; i++)
+    for (int i = 0; i < g; i++) // source -> ground station
+        adder.add_edge(source, i, 1);
+    for (int i = 0; i < s; i++) // satellites -> sink
         adder.add_edge(baseS + i, target, 1);
     
-    // Get maximum matching
-    int max_flow = boost::push_relabel_max_flow(G, source, target);
-
-    if (max_flow == 0) // no need to do extra work
+    int flow = boost::push_relabel_max_flow(G, source, target);
+    if (flow == 0) // no need to do extra work
     {
         printf("0 0\n");
         return;
     }
-    
-    // Compute minimum vertex cover
-    // Residual capacity map: In this case, we can judge whether a node is 
-    // matched using merely rc_map
-    const auto rc_map = boost::get(boost::edge_residual_capacity, G);
 
-    std::vector<bool> visited(nNode, false);
-    int visitedSatellite = 0;
-    // BFS to find vertex set S
-	std::queue<int> Q;
-	visited[source] = true;
-	Q.push(source);
-	while (!Q.empty()) 
+    // BFS
+    int vis_G = 0;
+    vector<bool> visited(nVerts, false);
+    queue<int> Q;
+    auto rc_map = boost::get(boost::edge_residual_capacity, G);
+
+    visited[source] = true;
+    Q.push(source);
+    while (!Q.empty())
     {
-		int u = Q.front(); Q.pop();
-		out_edge_it ebeg, eend;
-		for (boost::tie(ebeg, eend) = boost::out_edges(u, G); ebeg != eend; ++ebeg) 
-        {
-			const int v = boost::target(*ebeg, G);
-            // help us alternate between matched edges and unmatched edges
-			if (rc_map[*ebeg] == 0 || visited[v])
-                continue;
-			visited[v] = true;
-			Q.push(v);
-            if (baseS <= v && v < baseS + nSatellite)
-                visitedSatellite++;
-		}
-	}
+        int vertex = Q.front();
+        Q.pop();
 
-    printf("%d %d\n", max_flow - visitedSatellite, visitedSatellite);
-    for (int i = baseG; i < baseG + nGronud; i++)
+        visited[vertex] = true;
+        if (vertex < g)
+            vis_G++;
+        
+        out_edge_it e, eend;
+		for (boost::tie(e, eend) = boost::out_edges(vertex, G); e != eend; ++e) 
+        {
+            int to = boost::target(*e, G);
+            if (rc_map[*e] > 0 && !visited[to])
+            {
+                visited[to] = true;
+                Q.push(to);
+            }   
+        }
+    }
+
+    int g0 = g - vis_G, s0  = flow - g0;
+    printf("%d %d\n", g0, s0); // g0, s0
+    
+    for (int i = 0; i < g; i++)
         if (!visited[i])
-            printf("%d ", i - baseG);
-    for (int i = baseS; i < baseS + nSatellite; i++)
-        if (visited[i])
-            printf("%d ", i - baseS);
+            printf("%d ", i);
+    for (int i = 0; i < s; i++)
+        if (visited[baseS + i])
+            printf("%d ", i);
     putchar('\n');
 }
 
@@ -110,6 +107,6 @@ int main()
 {
     int t;
     scanf("%d", &t);
-    while (t--) testcase();
-    return 0;
+    while (t--)
+        testcase();
 }

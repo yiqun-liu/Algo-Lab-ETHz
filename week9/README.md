@@ -16,19 +16,19 @@ And a more generalized flow model:
 
 ## Satellites
 
-Looking for a vertex cover for a bipartite graph
+**Vertex Cover**
 
-Apply the trick introduced in slides (Use residual map to make the code simple)
+Apply the trick introduced in slides (Use residual map to make code simpler)
 
 
 
 ## Algocoön Group
 
-Minimum Cut with arbitrary source and sink
+**Minimum Cut** with arbitrary source and sink
 
 
 
-Key insight: After we have the graph partitioned (into S and T), it doesn't matter which exact vertex in S is the source, and which exact vertex in T is the sink.
+Key insight: After we have the graph partitioned (into S and T), it doesn't matter which exact vertex in S is the source, and which exact vertex in T is the sink. (The idea to think in set view, rather than the micro, flow view)
 
 It is by this observation could we solve the problem by running maximum flow for only O(N) time. (Naively: N^2)
 
@@ -36,23 +36,13 @@ It is by this observation could we solve the problem by running maximum flow for
 
 ## Canteen
 
-A MCMF problem
+**Minimum Cost Maximum Flow**
 
 
 
-It is pretty obvious in many ways.
+An intuitive implementation results in `TL` because it involves negative cost.
 
-Information about one edge are grouped when provided.
-
-The are exactly two units which go in parallel, reminding us of cost & capacity.
-
-
-
-However, the intuitive implementation results in `TL` because it introduce negative cost.
-
-
-
-Notice: cost always takes the second priority. Any change in costs does not affect the flow. We can add a constant cost to all negative-cost edges. As the max flow remain unchanged, and there is only one negative-cost edge in the original model, this modification will increase cost in all cases by `max_flow * increased_amount`, with no more side effect.
+Notice: cost always takes the second priority. Changes in costs never affect the value of maximum flow. Also, on every unit flow flowing from source to sink, there is one and only one edge with negative cost. With that observation, we can add a constant, positive bias to all negative cost. This modification will increase cost by `max_flow * increased_amount`, with no other side effects (the relative differences are not changed, so it do not change the preference).
 
 
 
@@ -64,3 +54,4 @@ Notice: cost always takes the second priority. Any change in costs does not affe
 
 Everyone follows the shortest path(s), but the shortest path(s) may not be unique. Therefore we must first figure out all such paths before we calculating the maximum flow...
 
+Be careful the graph is undirected when you run Dijkstra.
