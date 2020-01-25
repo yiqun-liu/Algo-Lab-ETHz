@@ -43,7 +43,10 @@ void testcase()
             eqnNo++;
         }
 
-        // prevent collision between new & old posters
+        if (!m) // If there is no old posters
+        	continue;
+
+        // prevent collision between this new poster & old posters
         int maxB, maxC;
         bool unset = true;
         for (int j = 0; j < m; j++)
@@ -55,14 +58,11 @@ void testcase()
             int newB, newC;
             if (b)
             {
-                // All such relations reduce to ai*b <= c --> we can merge them
-                // lp.set_a(i, eqnNo, w); lp.set_b(eqnNo, 2 * dx - w);
                 newB = 2 * dx - w;
                 newC = w;
             }
             else
             { 
-                // lp.set_a(i, eqnNo, h); lp.set_b(eqnNo, 2 * dy - h); 
                 newB = 2 * dy - h;
                 newC = h;
             }
@@ -75,11 +75,9 @@ void testcase()
                 unset = false;
             }
         }
-        if (m)
-        {
-            lp.set_a(i, eqnNo, maxC); lp.set_b(eqnNo, maxB); 
-            eqnNo++;
-        }
+        lp.set_a(i, eqnNo, maxC); lp.set_b(eqnNo, maxB); 
+        eqnNo++;
+        
         lp.set_c(i, -2 * (h + w));
     }
 
